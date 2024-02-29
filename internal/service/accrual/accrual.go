@@ -22,7 +22,7 @@ type AccrualModel struct {
 	Accrual float64 `json:"accrual"`
 }
 
-func RunAccrual(ctx context.Context) {
+func RunAccrual(ctx context.Context, addr string) {
 	OrdersList = make(chan int)
 	go func() {
 		for {
@@ -31,24 +31,24 @@ func RunAccrual(ctx context.Context) {
 		}
 	}()
 	for i := 0; i < config.ELEMENTS; i++ {
-		go Worker(ctx)
+		go Worker(ctx, addr)
 	}
 
 }
 
-func Worker(ctx context.Context) {
+func Worker(ctx context.Context, addr string) {
 	for {
 		order, ok := <-OrdersList
 		if !ok {
 			log.Logger.Info("Problem with channel")
 			return
 		}
-		GetOrderInformation(ctx, order)
+		GetOrderInformation(ctx, order, addr)
 	}
 }
 
-func GetOrderInformation(ctx context.Context, number int) {
-	url := fmt.Sprintf("http://%s/api/orders/%v", config.ACCRUALSYSTEMADDRESS, number)
+func GetOrderInformation(ctx context.Context, number int, addr string) {
+	url := fmt.Sprintf("http://%s/api/orders/%v", addr, number)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Logger.Info("Error get information from accrual", zap.Error(err))

@@ -1,12 +1,11 @@
 package server
 
 import (
-	"github.com/Nchezhegova/market/internal/config"
 	"github.com/Nchezhegova/market/internal/http/handlers"
 	"github.com/gin-gonic/gin"
 )
 
-func StartServer() {
+func StartServer(addr string) {
 	r := gin.Default()
 	r.ContextWithFallback = true
 
@@ -32,9 +31,5 @@ func StartServer() {
 		handlers.Withdrawals(c)
 	})
 
-	var err error
-	r.Run(config.ADDRSERV)
-	if err != nil {
-		panic(err)
-	}
+	r.Run(addr)
 }

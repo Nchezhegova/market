@@ -3,15 +3,14 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"github.com/Nchezhegova/market/internal/config"
 	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 
-func init() {
+func RunDB(addr string) {
 	var err error
-	DB, err = sql.Open("postgres", config.DATEBASE)
+	DB, err = sql.Open("postgres", addr)
 	if err != nil {
 		panic(fmt.Sprintf("Не удалось подключиться к БД: %v", err))
 	}
