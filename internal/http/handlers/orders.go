@@ -35,7 +35,7 @@ func LoadOrders(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.String(http.StatusOK, "Success adding")
+	c.String(http.StatusAccepted, "Success adding")
 }
 
 func GetOrders(c *gin.Context) {
