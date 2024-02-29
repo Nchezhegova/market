@@ -19,7 +19,7 @@ func RunDB(addr string) {
 		`CREATE TABLE IF NOT EXISTS users (
                       id SERIAL PRIMARY KEY,
                       name VARCHAR(255) NOT NULL UNIQUE,
-   					  email VARCHAR(255) NOT NULL UNIQUE,
+   					  email VARCHAR(255),
     				  address VARCHAR(255),
     				  password VARCHAR(255) NOT NULL,
                       loyalty INT);

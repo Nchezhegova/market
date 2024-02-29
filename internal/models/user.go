@@ -11,9 +11,9 @@ import (
 )
 
 type UserModel struct {
-	ID             int    `json:"ID"`
-	Name           string `json:"name"`
-	Email          string `json:"email"`
+	ID   int    `json:"ID"`
+	Name string `json:"name"`
+	//	Email          string `json:"email"`
 	LoyaltyBalance int64  `json:"loyalty"`
 	Address        string `json:"address"`
 	Password       string `json:"password"`
@@ -29,20 +29,20 @@ type User interface {
 func (u *UserModel) Add(ctx context.Context) error {
 	var err error = nil
 	if u.CheckUser(ctx) {
-		err = fmt.Errorf("User with the same name or email already exists")
+		err = fmt.Errorf("User with the same name already exists")
 		return err
 	}
-	if u.Name == "" || u.Email == "" || u.Password == "" {
+	if u.Name == "" || u.Password == "" {
 		err = fmt.Errorf("No required parameters")
 		return err
 	}
 	u.Password = base64.StdEncoding.EncodeToString(hash.CalculateHash(u.Password))
-	db.AddUser(ctx, u.Name, u.Email, u.Password)
+	db.AddUser(ctx, u.Name, u.Password)
 	return err
 }
 
 func (u *UserModel) CheckUser(ctx context.Context) bool {
-	if exists := db.CheckUser(ctx, u.Name, u.Email); exists {
+	if exists := db.CheckUser(ctx, u.Name); exists {
 		log.Logger.Info("User exists")
 		return exists
 	}
@@ -56,7 +56,7 @@ func (u *UserModel) Login(ctx context.Context) (string, error) {
 	}
 
 	var pass string
-	pass, u.ID = db.CheckPassword(ctx, u.Email)
+	pass, u.ID = db.CheckPassword(ctx, u.Name)
 	if pass == base64.StdEncoding.EncodeToString(hash.CalculateHash(u.Password)) {
 		token, err := jwt.BuildJWTString(u.ID)
 		if err != nil {
