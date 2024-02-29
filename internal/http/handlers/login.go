@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func Login(c *gin.Context) {
+func Login(c *gin.Context, addr string) {
 	var user models.UserModel
 	var buf bytes.Buffer
 
@@ -27,7 +27,7 @@ func Login(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	} else {
-		c.SetCookie(config.NAME_TOKEN, token, 3600, "/", config.ADDRSERV, false, true)
+		c.SetCookie(config.NAME_TOKEN, token, 3600, "/", addr, false, true)
 	}
 
 	c.String(http.StatusOK, "Success login")

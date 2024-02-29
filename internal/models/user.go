@@ -12,7 +12,7 @@ import (
 
 type UserModel struct {
 	ID   int    `json:"ID"`
-	Name string `json:"name"`
+	Name string `json:"login"`
 	//	Email          string `json:"email"`
 	LoyaltyBalance int64  `json:"loyalty"`
 	Address        string `json:"address"`
@@ -36,8 +36,8 @@ func (u *UserModel) Add(ctx context.Context) error {
 		err = fmt.Errorf("No required parameters")
 		return err
 	}
-	u.Password = base64.StdEncoding.EncodeToString(hash.CalculateHash(u.Password))
-	db.AddUser(ctx, u.Name, u.Password)
+	hashpass := base64.StdEncoding.EncodeToString(hash.CalculateHash(u.Password))
+	db.AddUser(ctx, u.Name, hashpass)
 	return err
 }
 

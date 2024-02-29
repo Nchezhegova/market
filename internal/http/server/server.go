@@ -10,10 +10,10 @@ func StartServer(addr string) {
 	r.ContextWithFallback = true
 
 	r.POST("/api/user/register", func(c *gin.Context) {
-		handlers.Registration(c)
+		handlers.Registration(c, addr)
 	})
 	r.POST("/api/user/login", func(c *gin.Context) {
-		handlers.Login(c)
+		handlers.Login(c, addr)
 	})
 	r.POST("/api/user/orders", func(c *gin.Context) {
 		handlers.LoadOrders(c)
