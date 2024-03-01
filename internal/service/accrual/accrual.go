@@ -9,6 +9,7 @@ import (
 	"github.com/Nchezhegova/market/internal/db"
 	"github.com/Nchezhegova/market/internal/log"
 	"github.com/Nchezhegova/market/internal/models"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -17,9 +18,9 @@ import (
 var OrdersList chan int
 
 type AccrualModel struct {
-	Number  string  `json:"order"`
-	State   string  `json:"status"`
-	Accrual float64 `json:"accrual"`
+	Number  string          `json:"order"`
+	State   string          `json:"status"`
+	Accrual decimal.Decimal `json:"accrual"`
 }
 
 func RunAccrual(ctx context.Context, addr string) {

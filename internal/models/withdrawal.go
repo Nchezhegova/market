@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"github.com/Nchezhegova/market/internal/db"
 	"github.com/Nchezhegova/market/internal/service/luhn"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
 type WithdrawalModel struct {
-	Order     string  `json:"order"`
-	Sum       float64 `json:"sum"`
-	Processed string  `json:"processed_at,omitempty"`
+	Order     string          `json:"order"`
+	Sum       decimal.Decimal `json:"sum"`
+	Processed string          `json:"processed_at,omitempty"`
 }
 
 type Withdrawal interface {
@@ -33,7 +34,7 @@ func (w *WithdrawalModel) AddWithdrawal(ctx context.Context, uid int) error {
 	}
 
 	w.Processed = time.Now().Format(time.RFC3339)
-	if err := db.AddWithdrawal(ctx, uid, w.Order, int(w.Sum*100), w.Processed); err != nil {
+	if err := db.AddWithdrawal(ctx, uid, w.Order, w.Sum, w.Processed); err != nil {
 		return err
 	}
 	return nil
@@ -50,7 +51,7 @@ func GetWithdrawal(ctx context.Context, uid int) (error, []WithdrawalModel) {
 	for i := range DBw {
 		var witdrawal WithdrawalModel
 		witdrawal.Order = DBw[i].Order
-		witdrawal.Sum = float64(DBw[i].Sum / 100)
+		witdrawal.Sum = DBw[i].Sum
 		witdrawal.Processed = DBw[i].Processed
 
 		w = append(w, witdrawal)

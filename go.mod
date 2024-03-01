@@ -3,10 +3,10 @@ module github.com/Nchezhegova/market
 go 1.21.4
 
 require (
-	github.com/Rhymond/go-money v1.0.10
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/lib/pq v1.2.0
+	github.com/shopspring/decimal v1.3.1
 	go.uber.org/zap v1.26.0
 )
 

@@ -2,16 +2,16 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"github.com/Nchezhegova/market/internal/log"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 )
 
 type DBOrder struct {
-	Number  int           `json:"number"`
-	Status  string        `json:"status"`
-	Accrual sql.NullInt64 `json:"accrual,omitempty"`
-	Upload  string        `json:"uploaded_at"`
+	Number  int             `json:"number"`
+	Status  string          `json:"status"`
+	Accrual decimal.Decimal `json:"accrual,omitempty"`
+	Upload  string          `json:"uploaded_at"`
 }
 
 func AddOrder(ctx context.Context, onumber int, ostate string, uid int, upload string) {
@@ -52,7 +52,7 @@ func OrderProcessing(ctx context.Context, number int, user int) {
 	}
 }
 
-func UpdateOrder(ctx context.Context, number int, status string, accrual int64) {
+func UpdateOrder(ctx context.Context, number int, status string, accrual decimal.Decimal) {
 	_, err := DB.ExecContext(ctx, "UPDATE orders SET status =$1, accrual =$2 WHERE number = $3",
 		status, accrual, number)
 	if err != nil {

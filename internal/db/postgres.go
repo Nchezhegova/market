@@ -28,13 +28,13 @@ func RunDB(addr string) {
                       number BIGINT NOT NULL,
    					  user_id INT NOT NULL,
     				  status VARCHAR(255) NOT NULL,
-    				  accrual INT,
+    				  accrual numeric,
     				  uploaded_at VARCHAR(255));
 		CREATE TABLE IF NOT EXISTS withdrawals (
                       id SERIAL PRIMARY KEY,
                       order_id VARCHAR(255) NOT NULL,
    					  user_id INT NOT NULL,
-    				  withdrawal INT,
+    				  withdrawal numeric,
 				      processed_at VARCHAR(255) NOT NULL);`
 	_, err = DB.Exec(createTableQuery)
 	if err != nil {

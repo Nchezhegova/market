@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"github.com/Nchezhegova/market/internal/db"
+	"github.com/shopspring/decimal"
 )
 
 //type AccrualModel struct {
@@ -12,8 +13,8 @@ import (
 //}
 
 type BalanceModel struct {
-	Sum        float64 `json:"current"`
-	Withdrawal float64 `json:"withdrawn"`
+	Sum        decimal.Decimal `json:"current"`
+	Withdrawal decimal.Decimal `json:"withdrawn"`
 }
 
 type Balance interface {
@@ -22,18 +23,18 @@ type Balance interface {
 
 func (b *BalanceModel) GetBalance(ctx context.Context, uid int) error {
 	var err error
-	var sum int
+	var sum decimal.Decimal
 	sum, err = db.GetAccrual(ctx, uid)
 	if err != nil {
 		return err
 	}
 
-	var withdrawal int
+	var withdrawal decimal.Decimal
 	withdrawal, err = db.GetWithdrawal(ctx, uid)
 	if err != nil {
 		return err
 	}
-	b.Withdrawal = float64(withdrawal / 100)
-	b.Sum = float64(sum/100) - b.Withdrawal
+	b.Withdrawal = withdrawal
+	b.Sum = sum.Sub(b.Withdrawal)
 	return nil
 }

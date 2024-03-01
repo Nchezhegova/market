@@ -69,8 +69,8 @@ func AddWithdrawal(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	if b.Sum < w.Sum {
-		c.AbortWithError(http.StatusPaymentRequired, err)
+	if b.Sum.Cmp(w.Sum) == -1 {
+		c.AbortWithStatus(http.StatusPaymentRequired)
 		return
 	}
 

@@ -6,50 +6,26 @@ import (
 	"github.com/Nchezhegova/market/internal/db"
 	"github.com/Nchezhegova/market/internal/log"
 	"github.com/Nchezhegova/market/internal/service/luhn"
-	"github.com/Rhymond/go-money"
+	"github.com/shopspring/decimal"
 	"strconv"
 	"time"
 )
 
-//type Status int
-//
-//const (
-//	NEW        Status = 1
-//	PROCESSING Status = 2
-//	INVALID    Status = 3
-//	PROCESSED  Status = 4
-//)
-
 type OrderModel struct {
-	ID      int         `json:"ID"`
-	Number  int         `json:"order"`
-	UserID  int         `json:"user_id"`
-	State   string      `json:"status"`
-	Accrual money.Money `json:"accrual"`
-	Upload  string      `json:"uploaded_at"`
+	ID      int             `json:"ID"`
+	Number  int             `json:"order"`
+	UserID  int             `json:"user_id"`
+	State   string          `json:"status"`
+	Accrual decimal.Decimal `json:"accrual"`
+	Upload  string          `json:"uploaded_at"`
 }
 
 type OrderWithdrawal struct {
-	Number  string  `json:"number"`
-	Status  string  `json:"status"`
-	Accrual float64 `json:"accrual,omitempty"`
-	Upload  string  `json:"uploaded_at"`
+	Number  string          `json:"number"`
+	Status  string          `json:"status"`
+	Accrual decimal.Decimal `json:"accrual,omitempty"`
+	Upload  string          `json:"uploaded_at"`
 }
-
-//func ParseStatus(statusStr string) (Status, error) {
-//	switch strings.ToUpper(statusStr) {
-//	case "NEW":
-//		return NEW, nil
-//	case "PROCESSING":
-//		return PROCESSING, nil
-//	case "INVALID":
-//		return INVALID, nil
-//	case "PROCESSED":
-//		return PROCESSED, nil
-//	default:
-//		return -1, errors.New("invalid status string")
-//	}
-//}
 
 type Order interface {
 	CheckNumber(context.Context, string) error
@@ -93,7 +69,7 @@ func (o *OrderModel) CheckOrder(ctx context.Context, uid int) bool {
 	return false
 }
 
-func UpdateOrder(ctx context.Context, number string, status string, accrual float64) {
+func UpdateOrder(ctx context.Context, number string, status string, accrual decimal.Decimal) {
 	var o OrderModel
 	var err error
 	o.Number, err = strconv.Atoi(number)
@@ -101,9 +77,9 @@ func UpdateOrder(ctx context.Context, number string, status string, accrual floa
 		return
 	}
 	o.State = status
-	o.Accrual = *money.New(int64(accrual*100), "USD")
-
-	db.UpdateOrder(ctx, o.Number, o.State, o.Accrual.Amount())
+	//o.Accrual = *money.NewFromFloat(accrual, "USD")
+	o.Accrual = accrual
+	db.UpdateOrder(ctx, o.Number, o.State, o.Accrual)
 }
 
 func GetOrders(ctx context.Context, uid int) []OrderWithdrawal {
@@ -114,7 +90,7 @@ func GetOrders(ctx context.Context, uid int) []OrderWithdrawal {
 		var order OrderWithdrawal
 		order.Number = strconv.Itoa(DBorders[i].Number)
 		order.Status = DBorders[i].Status
-		order.Accrual = float64(DBorders[i].Accrual.Int64 / 100)
+		order.Accrual = DBorders[i].Accrual
 		order.Upload = DBorders[i].Upload
 
 		o = append(o, order)
