@@ -10,21 +10,25 @@ import (
 )
 
 func GetBalance(c *gin.Context) {
-	var user models.UserModel
-	var uid int
-	token, err := c.Cookie(config.NAME_TOKEN)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	//var user models.UserModel
+	//var uid int
+	//token, err := c.Cookie(config.NAME_TOKEN)
+	//if err != nil {
+	//	c.AbortWithError(http.StatusBadRequest, err)
+	//	return
+	//}
+	//if err, uid = user.CheckToken(c, token); err != nil {
+	//	c.AbortWithError(http.StatusBadRequest, err)
+	//	return
+	//}
+	uid, exists := c.Get("userID")
+	if !exists {
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	if err, uid = user.CheckToken(c, token); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
 	b := models.BalanceModel{}
-	if b.GetBalance(c, uid) != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+	if b.GetBalance(c, uid.(int)) != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 	balanceByte, err := json.Marshal(b)
@@ -78,20 +82,14 @@ func AddWithdrawal(c *gin.Context) {
 }
 
 func Withdrawals(c *gin.Context) {
-	var user models.UserModel
-	var uid int
-	token, err := c.Cookie(config.NAME_TOKEN)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	uid, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found in context"})
 		return
 	}
-	if err, uid = user.CheckToken(c, token); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
+	var err error
 	var withdrawals []models.WithdrawalModel
-	err, withdrawals = models.GetWithdrawal(c, uid)
+	err, withdrawals = models.GetWithdrawal(c, uid.(int))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

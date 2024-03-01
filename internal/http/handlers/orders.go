@@ -3,35 +3,27 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/Nchezhegova/market/internal/config"
 	"github.com/Nchezhegova/market/internal/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func LoadOrders(c *gin.Context) {
-	var user models.UserModel
 	var orders models.OrderModel
 	var buf bytes.Buffer
-	var uid int
 
-	token, err := c.Cookie(config.NAME_TOKEN)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	uid, exists := c.Get("userID")
+	if !exists {
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	if err, uid = user.CheckToken(c, token); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	_, err = buf.ReadFrom(c.Request.Body)
+	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	number := buf.String()
-	if err := orders.AddOrder(c, number, uid); err != nil {
+	if err := orders.AddOrder(c, number, uid.(int)); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -39,18 +31,13 @@ func LoadOrders(c *gin.Context) {
 }
 
 func GetOrders(c *gin.Context) {
-	var user models.UserModel
-	var uid int
-	token, err := c.Cookie(config.NAME_TOKEN)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	uid, exists := c.Get("userID")
+	if !exists {
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	if err, uid = user.CheckToken(c, token); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-	orders := models.GetOrders(c, uid)
+
+	orders := models.GetOrders(c, uid.(int))
 
 	ordersByte, err := json.Marshal(orders)
 	if err != nil {
