@@ -4,7 +4,7 @@ import "time"
 
 const DATEBASE = "postgres://user:password@localhost/metrics"
 const ADDRSERV = "localhost:8080"
-const ACCRUALSYSTEMADDRESS = "localhost:8081"
+const ACCRUALSYSTEMADDRESS = "http://localhost:8081"
 
 // hash
 const PASSWORDHASH = "1234567"

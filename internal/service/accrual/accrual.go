@@ -48,7 +48,7 @@ func Worker(ctx context.Context, addr string) {
 }
 
 func GetOrderInformation(ctx context.Context, number int, addr string) {
-	url := fmt.Sprintf("http://%s/api/orders/%v", addr, number)
+	url := fmt.Sprintf("%s/api/orders/%v", addr, number)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Logger.Info("Error get information from accrual", zap.Error(err))
