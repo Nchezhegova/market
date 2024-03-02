@@ -27,7 +27,7 @@ func Login(c *gin.Context, addr string) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	} else {
-		c.SetCookie(config.NAME_TOKEN, token, 3600, "/", addr, false, true)
+		c.SetCookie(config.NAMETOKEN, token, 3600, "/", addr, false, true)
 	}
 
 	c.String(http.StatusOK, "Success login")

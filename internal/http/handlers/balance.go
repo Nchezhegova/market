@@ -42,7 +42,7 @@ func GetBalance(c *gin.Context) {
 func AddWithdrawal(c *gin.Context) {
 	var user models.UserModel
 	var uid int
-	token, err := c.Cookie(config.NAME_TOKEN)
+	token, err := c.Cookie(config.NAMETOKEN)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return

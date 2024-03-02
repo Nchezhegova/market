@@ -77,7 +77,6 @@ func UpdateOrder(ctx context.Context, number string, status string, accrual deci
 		return
 	}
 	o.State = status
-	//o.Accrual = *money.NewFromFloat(accrual, "USD")
 	o.Accrual = accrual
 	db.UpdateOrder(ctx, o.Number, o.State, o.Accrual)
 }

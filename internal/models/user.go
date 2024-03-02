@@ -71,7 +71,7 @@ func (u *UserModel) Login(ctx context.Context) (string, error) {
 }
 
 func (u *UserModel) CheckToken(ctx context.Context, token string) (error, int) {
-	if u.ID = jwt.GetUserId(token); u.ID < 0 {
+	if u.ID = jwt.GetUserID(token); u.ID < 0 {
 		err := fmt.Errorf("not valid token")
 		return err, 0
 	}

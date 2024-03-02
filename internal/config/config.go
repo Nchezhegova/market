@@ -10,9 +10,9 @@ const ACCRUALSYSTEMADDRESS = "http://localhost:8081"
 const PASSWORDHASH = "1234567"
 
 // jwt
-const TOKEN_EXP = time.Hour * 3
-const SECRET_KEY = "supersecretkey"
-const NAME_TOKEN = "token"
+const TOKENEXP = time.Hour * 3
+const SECRETKEY = "supersecretkey"
+const NAMETOKEN = "token"
 
 // chan
 const ELEMENTS = 1

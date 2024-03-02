@@ -11,7 +11,7 @@ func Authorization() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user models.UserModel
 		var uid int
-		token, err := c.Cookie(config.NAME_TOKEN)
+		token, err := c.Cookie(config.NAMETOKEN)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
 			c.Abort()
