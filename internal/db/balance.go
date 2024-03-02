@@ -47,7 +47,7 @@ func AddWithdrawal(ctx context.Context, uid int, order string, w decimal.Decimal
 
 func GetWithdrawals(ctx context.Context, uid int) (error, []WithdrawalDB) {
 	var WithdrawalList []WithdrawalDB
-	rows, err := DB.QueryContext(ctx, "SELECT order_id,withdrawal,processed_at FROM withdrawals WHERE user_id=$1", uid)
+	rows, err := DB.QueryContext(ctx, "SELECT order_id,COALESCE(withdrawal,0),processed_at FROM withdrawals WHERE user_id=$1", uid)
 	if err != nil {
 		log.Logger.Info("Error DB:", zap.Error(err))
 		return err, nil

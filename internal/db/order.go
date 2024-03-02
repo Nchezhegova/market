@@ -62,7 +62,7 @@ func UpdateOrder(ctx context.Context, number int, status string, accrual decimal
 
 func GetOrders(ctx context.Context, uid int) []DBOrder {
 	var DBorders []DBOrder
-	rows, err := DB.QueryContext(ctx, "SELECT number,status,accrual,uploaded_at FROM orders WHERE user_id=$1", uid)
+	rows, err := DB.QueryContext(ctx, "SELECT number,status,COALESCE(accrual,0),uploaded_at FROM orders WHERE user_id=$1", uid)
 	if err != nil {
 		log.Logger.Info("Error DB:", zap.Error(err))
 	}
