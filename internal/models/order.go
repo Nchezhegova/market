@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/Nchezhegova/market/internal/db"
-	"github.com/Nchezhegova/market/internal/log"
 	"github.com/Nchezhegova/market/internal/service/luhn"
 	"github.com/shopspring/decimal"
 	"strconv"
@@ -38,35 +37,23 @@ func (o *OrderModel) CheckNumber(ctx context.Context, number string) error {
 		err := fmt.Errorf("not valid number")
 		return err
 	}
-	return nil
-}
-
-func (o *OrderModel) AddOrder(ctx context.Context, number string, uid int) error {
 	var err error
-	if err = o.CheckNumber(ctx, number); err != nil {
-		return err
-	}
 	o.Number, err = strconv.Atoi(number)
 	if err != nil {
 		return err
 	}
-
-	if o.CheckOrder(ctx, uid) {
-		err = fmt.Errorf("Order already exists")
-		return err
-	}
-	o.State = "NEW"
-	o.Upload = time.Now().Format(time.RFC3339)
-	db.AddOrder(ctx, o.Number, o.State, uid, o.Upload)
 	return nil
 }
 
-func (o *OrderModel) CheckOrder(ctx context.Context, uid int) bool {
-	if exists := db.CheckOrder(ctx, o.Number, uid); exists {
-		log.Logger.Info("Order already exists")
-		return exists
-	}
-	return false
+func (o *OrderModel) AddOrder(ctx context.Context, number string, uid int) {
+	o.State = "NEW"
+	o.Upload = time.Now().Format(time.RFC3339)
+	db.AddOrder(ctx, o.Number, o.State, uid, o.Upload)
+}
+
+func (o *OrderModel) CheckOrder(ctx context.Context) int {
+	uid := db.CheckOrder(ctx, o.Number)
+	return uid
 }
 
 func UpdateOrder(ctx context.Context, number string, status string, accrual decimal.Decimal) {

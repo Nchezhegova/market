@@ -22,14 +22,14 @@ func AddOrder(ctx context.Context, onumber int, ostate string, uid int, upload s
 	}
 }
 
-func CheckOrder(ctx context.Context, onumber int, uid int) bool {
-	var count int
-	err := DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM orders WHERE number = $1 AND user_id = $2",
-		onumber, uid).Scan(&count)
+func CheckOrder(ctx context.Context, onumber int) int {
+	var uid int
+	err := DB.QueryRowContext(ctx, "SELECT COALESCE(user_id,0) FROM orders WHERE number = $1",
+		onumber).Scan(&uid)
 	if err != nil {
 		log.Logger.Info("Problem with checking order", zap.Error(err))
 	}
-	return count > 0
+	return uid
 }
 
 func GetNewOrder(ctx context.Context) (int, int) {

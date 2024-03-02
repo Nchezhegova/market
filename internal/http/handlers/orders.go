@@ -24,10 +24,20 @@ func LoadOrders(c *gin.Context) {
 		return
 	}
 	number := buf.String()
-	if err := orders.AddOrder(c, number, uid.(int)); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	if err = orders.CheckNumber(c, number); err != nil {
+		c.AbortWithError(http.StatusUnprocessableEntity, err)
 		return
 	}
+	qwe := orders.CheckOrder(c)
+	if orderUser := qwe; orderUser != 0 {
+		if orderUser == uid {
+			c.AbortWithStatus(http.StatusOK)
+			return
+		}
+		c.AbortWithStatus(http.StatusConflict)
+		return
+	}
+	orders.AddOrder(c, number, uid.(int))
 	c.String(http.StatusAccepted, "Success adding")
 }
 
@@ -42,11 +52,5 @@ func GetOrders(c *gin.Context) {
 	orders = models.GetOrders(c, uid.(int))
 	log.Logger.Info("Response orders:", zap.Any("orders", orders))
 
-	//ordersByte, err := json.Marshal(orders)
-	//if err != nil {
-	//	c.AbortWithError(http.StatusInternalServerError, err)
-	//	return
-	//}
-	//c.Data(http.StatusOK, "application/json", ordersByte)
 	c.JSON(http.StatusOK, orders)
 }
