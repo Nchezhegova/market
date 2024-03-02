@@ -21,10 +21,10 @@ type OrderModel struct {
 }
 
 type OrderWithdrawal struct {
-	Number  string          `json:"number"`
-	Status  string          `json:"status"`
-	Accrual decimal.Decimal `json:"accrual,omitempty"`
-	Upload  string          `json:"uploaded_at"`
+	Number  string           `json:"number"`
+	Status  string           `json:"status"`
+	Accrual *decimal.Decimal `json:"accrual,omitempty"`
+	Upload  string           `json:"uploaded_at,omitempty"`
 }
 
 type Order interface {
@@ -89,9 +89,10 @@ func GetOrders(ctx context.Context, uid int) []OrderWithdrawal {
 		var order OrderWithdrawal
 		order.Number = strconv.Itoa(DBorders[i].Number)
 		order.Status = DBorders[i].Status
-		order.Accrual = DBorders[i].Accrual
+		if order.Status == "PROCESSED" {
+			order.Accrual = &DBorders[i].Accrual
+		}
 		order.Upload = DBorders[i].Upload
-
 		o = append(o, order)
 	}
 	return o

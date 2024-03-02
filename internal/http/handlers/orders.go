@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"encoding/json"
 	"github.com/Nchezhegova/market/internal/log"
 	"github.com/Nchezhegova/market/internal/models"
 	"github.com/gin-gonic/gin"
@@ -39,13 +38,15 @@ func GetOrders(c *gin.Context) {
 		return
 	}
 
-	orders := models.GetOrders(c, uid.(int))
-
-	ordersByte, err := json.Marshal(orders)
+	var orders []models.OrderWithdrawal
+	orders = models.GetOrders(c, uid.(int))
 	log.Logger.Info("Response orders:", zap.Any("orders", orders))
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	c.Data(http.StatusOK, "application/json", ordersByte)
+
+	//ordersByte, err := json.Marshal(orders)
+	//if err != nil {
+	//	c.AbortWithError(http.StatusInternalServerError, err)
+	//	return
+	//}
+	//c.Data(http.StatusOK, "application/json", ordersByte)
+	c.JSON(http.StatusOK, orders)
 }
