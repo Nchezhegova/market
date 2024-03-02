@@ -69,7 +69,8 @@ func AddWithdrawal(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	if b.Sum.Cmp(w.Sum) == -1 {
+	withdrawalSum, _ := w.Sum.Float64()
+	if b.Sum < withdrawalSum {
 		c.AbortWithStatus(http.StatusPaymentRequired)
 		return
 	}
@@ -88,7 +89,7 @@ func Withdrawals(c *gin.Context) {
 		return
 	}
 	var err error
-	var withdrawals []models.WithdrawalModel
+	var withdrawals []models.WithdrawalResp
 	err, withdrawals = models.GetWithdrawal(c, uid.(int))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)

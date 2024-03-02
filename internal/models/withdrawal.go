@@ -15,6 +15,12 @@ type WithdrawalModel struct {
 	Processed string          `json:"processed_at,omitempty"`
 }
 
+type WithdrawalResp struct {
+	Order     string  `json:"order"`
+	Sum       float64 `json:"sum"`
+	Processed string  `json:"processed_at,omitempty"`
+}
+
 type Withdrawal interface {
 	AddWithdrawal(context.Context, int) error
 	CheckOrder(context.Context, int) bool
@@ -40,18 +46,18 @@ func (w *WithdrawalModel) AddWithdrawal(ctx context.Context, uid int) error {
 	return nil
 }
 
-func GetWithdrawal(ctx context.Context, uid int) (error, []WithdrawalModel) {
+func GetWithdrawal(ctx context.Context, uid int) (error, []WithdrawalResp) {
 	var err error
-	var w []WithdrawalModel
+	var w []WithdrawalResp
 	var DBw []db.WithdrawalDB
 	err, DBw = db.GetWithdrawals(ctx, uid)
 	if err != nil {
 		return err, nil
 	}
 	for i := range DBw {
-		var witdrawal WithdrawalModel
+		var witdrawal WithdrawalResp
 		witdrawal.Order = DBw[i].Order
-		witdrawal.Sum = DBw[i].Sum
+		witdrawal.Sum, _ = DBw[i].Sum.Float64()
 		witdrawal.Processed = DBw[i].Processed
 
 		w = append(w, witdrawal)
