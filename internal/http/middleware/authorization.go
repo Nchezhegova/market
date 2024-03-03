@@ -17,7 +17,7 @@ func Authorization() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		if err, uid = user.CheckToken(c, token); err != nil {
+		if uid, err = user.CheckToken(c, token); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return

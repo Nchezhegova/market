@@ -36,7 +36,7 @@ func AddWithdrawal(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	if err, uid = user.CheckToken(c, token); err != nil {
+	if uid, err = user.CheckToken(c, token); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -88,10 +88,5 @@ func Withdrawals(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNoContent)
 		return
 	}
-	wByte, err := json.Marshal(withdrawals)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	c.Data(http.StatusOK, "application/json", wByte)
+	c.JSON(http.StatusOK, withdrawals)
 }
