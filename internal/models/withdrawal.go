@@ -46,13 +46,13 @@ func (w *WithdrawalModel) AddWithdrawal(ctx context.Context, uid int) error {
 	return nil
 }
 
-func GetWithdrawal(ctx context.Context, uid int) (error, []WithdrawalResp) {
+func GetWithdrawal(ctx context.Context, uid int) ([]WithdrawalResp, error) {
 	var err error
 	var w []WithdrawalResp
 	var DBw []db.WithdrawalDB
-	err, DBw = db.GetWithdrawals(ctx, uid)
+	DBw, err = db.GetWithdrawals(ctx, uid)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 	for i := range DBw {
 		var witdrawal WithdrawalResp
@@ -62,5 +62,5 @@ func GetWithdrawal(ctx context.Context, uid int) (error, []WithdrawalResp) {
 
 		w = append(w, witdrawal)
 	}
-	return nil, w
+	return w, nil
 }

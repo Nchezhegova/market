@@ -14,12 +14,14 @@ type DBOrder struct {
 	Upload  string          `json:"uploaded_at"`
 }
 
-func AddOrder(ctx context.Context, onumber int, ostate string, uid int, upload string) {
+func AddOrder(ctx context.Context, onumber int, ostate string, uid int, upload string) error {
 	_, err := DB.ExecContext(ctx, "INSERT INTO orders (number, status, user_id, uploaded_at) VALUES ($1, $2, $3, $4)",
 		onumber, ostate, uid, upload)
 	if err != nil {
-		log.Logger.Fatal("Problem with adding order", zap.Error(err))
+		log.Logger.Info("Problem with adding order", zap.Error(err))
+		return err
 	}
+	return nil
 }
 
 func CheckOrder(ctx context.Context, onumber int) int {
@@ -67,7 +69,9 @@ func GetOrders(ctx context.Context, uid int) []DBOrder {
 		log.Logger.Info("Error DB:", zap.Error(err))
 	}
 	defer rows.Close()
-
+	if err := rows.Err(); err != nil {
+		log.Logger.Info("Error DB:", zap.Error(err))
+	}
 	for rows.Next() {
 		var d DBOrder
 		if err := rows.Scan(&d.Number, &d.Status, &d.Accrual, &d.Upload); err != nil {

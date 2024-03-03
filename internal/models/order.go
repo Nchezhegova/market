@@ -45,10 +45,13 @@ func (o *OrderModel) CheckNumber(ctx context.Context, number string) error {
 	return nil
 }
 
-func (o *OrderModel) AddOrder(ctx context.Context, number string, uid int) {
+func (o *OrderModel) AddOrder(ctx context.Context, uid int) error {
 	o.State = "NEW"
 	o.Upload = time.Now().Format(time.RFC3339)
-	db.AddOrder(ctx, o.Number, o.State, uid, o.Upload)
+	if err := db.AddOrder(ctx, o.Number, o.State, uid, o.Upload); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (o *OrderModel) CheckOrder(ctx context.Context) int {

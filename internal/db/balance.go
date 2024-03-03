@@ -45,22 +45,26 @@ func AddWithdrawal(ctx context.Context, uid int, order string, w decimal.Decimal
 	return nil
 }
 
-func GetWithdrawals(ctx context.Context, uid int) (error, []WithdrawalDB) {
+func GetWithdrawals(ctx context.Context, uid int) ([]WithdrawalDB, error) {
 	var WithdrawalList []WithdrawalDB
 	rows, err := DB.QueryContext(ctx, "SELECT order_id,COALESCE(withdrawal,0),processed_at FROM withdrawals WHERE user_id=$1", uid)
 	if err != nil {
 		log.Logger.Info("Error DB:", zap.Error(err))
-		return err, nil
+		return nil, err
 	}
 	defer rows.Close()
 
+	if err := rows.Err(); err != nil {
+		log.Logger.Info("Error DB:", zap.Error(err))
+	}
 	for rows.Next() {
 		var w WithdrawalDB
 		if err := rows.Scan(&w.Order, &w.Sum, &w.Processed); err != nil {
 			log.Logger.Info("Error DB:", zap.Error(err))
-			return err, nil
+			return nil, err
 		}
 		WithdrawalList = append(WithdrawalList, w)
 	}
-	return nil, WithdrawalList
+
+	return WithdrawalList, nil
 }

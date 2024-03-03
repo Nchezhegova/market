@@ -25,7 +25,7 @@ func RunDB(addr string) {
                       loyalty INT);
 		CREATE TABLE IF NOT EXISTS orders (
                       id SERIAL PRIMARY KEY,
-                      number BIGINT NOT NULL,
+                      number BIGINT NOT NULL UNIQUE,
    					  user_id INT NOT NULL,
     				  status VARCHAR(255) NOT NULL,
     				  accrual numeric,

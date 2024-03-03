@@ -10,17 +10,6 @@ import (
 )
 
 func GetBalance(c *gin.Context) {
-	//var user models.UserModel
-	//var uid int
-	//token, err := c.Cookie(config.NAME_TOKEN)
-	//if err != nil {
-	//	c.AbortWithError(http.StatusBadRequest, err)
-	//	return
-	//}
-	//if err, uid = user.CheckToken(c, token); err != nil {
-	//	c.AbortWithError(http.StatusBadRequest, err)
-	//	return
-	//}
 	uid, exists := c.Get("userID")
 	if !exists {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -90,7 +79,7 @@ func Withdrawals(c *gin.Context) {
 	}
 	var err error
 	var withdrawals []models.WithdrawalResp
-	err, withdrawals = models.GetWithdrawal(c, uid.(int))
+	withdrawals, err = models.GetWithdrawal(c, uid.(int))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

@@ -29,11 +29,11 @@ type User interface {
 func (u *UserModel) Add(ctx context.Context) error {
 	var err error = nil
 	if u.CheckUser(ctx) {
-		err = fmt.Errorf("User with the same name already exists")
+		err = fmt.Errorf("user with the same name already exists")
 		return err
 	}
 	if u.Name == "" || u.Password == "" {
-		err = fmt.Errorf("No required parameters")
+		err = fmt.Errorf("no required parameters")
 		return err
 	}
 	hashpass := base64.StdEncoding.EncodeToString(hash.CalculateHash(u.Password))
@@ -51,7 +51,7 @@ func (u *UserModel) CheckUser(ctx context.Context) bool {
 
 func (u *UserModel) Login(ctx context.Context) (string, error) {
 	if !u.CheckUser(ctx) {
-		err := fmt.Errorf("User does not exist")
+		err := fmt.Errorf("user does not exist")
 		return "", err
 	}
 

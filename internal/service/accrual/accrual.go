@@ -71,6 +71,12 @@ func GetOrderInformation(ctx context.Context, number int, addr string) {
 		return
 	}
 	order.UpdateOrderInformation(ctx)
+
+	err = resp.Body.Close()
+	if err != nil {
+		log.Logger.Info("Error closing body:", zap.Error(err))
+		return
+	}
 }
 
 func GenerateOrdersList(ctx context.Context) {

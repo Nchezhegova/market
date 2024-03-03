@@ -37,7 +37,11 @@ func LoadOrders(c *gin.Context) {
 		c.AbortWithStatus(http.StatusConflict)
 		return
 	}
-	orders.AddOrder(c, number, uid.(int))
+	if err := orders.AddOrder(c, uid.(int)); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	c.String(http.StatusAccepted, "Success adding")
 }
 
@@ -48,8 +52,7 @@ func GetOrders(c *gin.Context) {
 		return
 	}
 
-	var orders []models.OrderWithdrawal
-	orders = models.GetOrders(c, uid.(int))
+	orders := models.GetOrders(c, uid.(int))
 	log.Logger.Info("Response orders:", zap.Any("orders", orders))
 
 	c.JSON(http.StatusOK, orders)
