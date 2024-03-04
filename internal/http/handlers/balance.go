@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/Nchezhegova/market/internal/config"
 	"github.com/Nchezhegova/market/internal/models"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
+	"sync"
 )
 
 func GetBalance(c *gin.Context) {
@@ -31,6 +32,7 @@ func GetBalance(c *gin.Context) {
 func AddWithdrawal(c *gin.Context) {
 	var user models.UserModel
 	var uid int
+	var mu sync.Mutex
 	token, err := c.Cookie(config.NAMETOKEN)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -41,33 +43,34 @@ func AddWithdrawal(c *gin.Context) {
 		return
 	}
 
-	var buf bytes.Buffer
-	_, err = buf.ReadFrom(c.Request.Body)
+	b, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 	var w models.WithdrawalModel
-	if err := json.Unmarshal(buf.Bytes(), &w); err != nil {
+	if err := json.Unmarshal(b, &w); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	b := models.BalanceModel{}
-	if b.GetBalance(c, uid) != nil {
+	mu.Lock()
+	balance := models.BalanceModel{}
+	if balance.GetBalance(c, uid) != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	withdrawalSum, _ := w.Sum.Float64()
-	if b.Sum < withdrawalSum {
+	if balance.Sum < withdrawalSum {
 		c.AbortWithStatus(http.StatusPaymentRequired)
 		return
 	}
-
 	if err := w.AddWithdrawal(c, uid); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+	mu.Unlock()
+
 	c.String(http.StatusOK, "Success adding")
 }
 

@@ -54,27 +54,34 @@ func (o *OrderModel) AddOrder(ctx context.Context, uid int) error {
 	return nil
 }
 
-func (o *OrderModel) CheckOrder(ctx context.Context) int {
-	uid := db.CheckOrder(ctx, o.Number)
-	return uid
+func (o *OrderModel) CheckOrder(ctx context.Context) (int, error) {
+	uid, err := db.CheckOrder(ctx, o.Number)
+	return uid, err
 }
 
-func UpdateOrder(ctx context.Context, number string, status string, accrual decimal.Decimal) {
+func UpdateOrder(ctx context.Context, number string, status string, accrual decimal.Decimal) error {
 	var o OrderModel
 	var err error
 	o.Number, err = strconv.Atoi(number)
 	if err != nil {
-		return
+		return err
 	}
 	o.State = status
 	o.Accrual = accrual
-	db.UpdateOrder(ctx, o.Number, o.State, o.Accrual)
+	if err = db.UpdateOrder(ctx, o.Number, o.State, o.Accrual); err != nil {
+		return err
+	}
+	return nil
 }
 
-func GetOrders(ctx context.Context, uid int) []OrderWithdrawal {
+func GetOrders(ctx context.Context, uid int) ([]OrderWithdrawal, error) {
 	var DBorders []db.DBOrder
 	var o []OrderWithdrawal
-	DBorders = db.GetOrders(ctx, uid)
+	var err error
+	DBorders, err = db.GetOrders(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
 	for i := range DBorders {
 		var order OrderWithdrawal
 		order.Number = strconv.Itoa(DBorders[i].Number)
@@ -85,5 +92,5 @@ func GetOrders(ctx context.Context, uid int) []OrderWithdrawal {
 		order.Upload = DBorders[i].Upload
 		o = append(o, order)
 	}
-	return o
+	return o, nil
 }

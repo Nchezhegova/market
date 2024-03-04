@@ -11,12 +11,9 @@ import (
 )
 
 type UserModel struct {
-	ID   int    `json:"ID"`
-	Name string `json:"login"`
-	//	Email          string `json:"email"`
-	LoyaltyBalance int64  `json:"loyalty"`
-	Address        string `json:"address"`
-	Password       string `json:"password"`
+	ID       int    `json:"ID"`
+	Name     string `json:"login"`
+	Password string `json:"password"`
 }
 
 type User interface {
@@ -27,36 +24,53 @@ type User interface {
 }
 
 func (u *UserModel) Add(ctx context.Context) error {
-	var err error = nil
-	if u.CheckUser(ctx) {
+	//var err error = nil
+	exists, err := u.CheckUser(ctx)
+	if err != nil {
+		return err
+	}
+	if exists {
 		err = fmt.Errorf("user with the same name already exists")
 		return err
 	}
 	if u.Name == "" || u.Password == "" {
-		err = fmt.Errorf("no required parameters")
+		err := fmt.Errorf("no required parameters")
 		return err
 	}
 	hashpass := base64.StdEncoding.EncodeToString(hash.CalculateHash(u.Password))
-	db.AddUser(ctx, u.Name, hashpass)
-	return err
+	if err = db.AddUser(ctx, u.Name, hashpass); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (u *UserModel) CheckUser(ctx context.Context) bool {
-	if exists := db.CheckUser(ctx, u.Name); exists {
-		log.Logger.Info("User exists")
-		return exists
+func (u *UserModel) CheckUser(ctx context.Context) (bool, error) {
+	exists, err := db.CheckUser(ctx, u.Name)
+	if err != nil {
+		return false, err
 	}
-	return false
+	if exists {
+		log.Logger.Info("User exists")
+		return exists, nil
+	}
+	return false, nil
 }
 
 func (u *UserModel) Login(ctx context.Context) (string, error) {
-	if !u.CheckUser(ctx) {
+	exists, err := u.CheckUser(ctx)
+	if err != nil {
+		return "", err
+	}
+	if !exists {
 		err := fmt.Errorf("user does not exist")
 		return "", err
 	}
 
 	var pass string
-	pass, u.ID = db.CheckPassword(ctx, u.Name)
+	pass, u.ID, err = db.CheckPassword(ctx, u.Name)
+	if err != nil {
+		return "", err
+	}
 	if pass == base64.StdEncoding.EncodeToString(hash.CalculateHash(u.Password)) {
 		token, err := jwt.BuildJWTString(u.ID)
 		if err != nil {

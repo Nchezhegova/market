@@ -39,7 +39,7 @@ func AddWithdrawal(ctx context.Context, uid int, order string, w decimal.Decimal
 	_, err := DB.ExecContext(ctx, "INSERT INTO withdrawals (order_id, user_id, withdrawal,processed_at) VALUES ($1, $2, $3, $4)",
 		order, uid, w, p)
 	if err != nil {
-		log.Logger.Fatal("Problem with adding withdrawal", zap.Error(err))
+		log.Logger.Info("Problem with adding withdrawal", zap.Error(err))
 		return err
 	}
 	return nil

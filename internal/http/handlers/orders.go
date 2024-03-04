@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"bytes"
-	"github.com/Nchezhegova/market/internal/log"
 	"github.com/Nchezhegova/market/internal/models"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -28,8 +26,11 @@ func LoadOrders(c *gin.Context) {
 		c.AbortWithError(http.StatusUnprocessableEntity, err)
 		return
 	}
-	qwe := orders.CheckOrder(c)
-	if orderUser := qwe; orderUser != 0 {
+	orderUser, err := orders.CheckOrder(c)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+	if orderUser != 0 {
 		if orderUser == uid {
 			c.AbortWithStatus(http.StatusOK)
 			return
@@ -52,8 +53,10 @@ func GetOrders(c *gin.Context) {
 		return
 	}
 
-	orders := models.GetOrders(c, uid.(int))
-	log.Logger.Info("Response orders:", zap.Any("orders", orders))
-
+	orders, err := models.GetOrders(c, uid.(int))
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 	c.JSON(http.StatusOK, orders)
 }
