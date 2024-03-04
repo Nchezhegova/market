@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"github.com/Nchezhegova/market/internal/log"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
@@ -29,6 +31,10 @@ func CheckOrder(ctx context.Context, onumber int) (int, error) {
 	err := DB.QueryRowContext(ctx, "SELECT COALESCE(user_id,0) FROM orders WHERE number = $1",
 		onumber).Scan(&uid)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Logger.Info("No rows", zap.Error(err))
+			return 0, nil
+		}
 		log.Logger.Info("Problem with checking order", zap.Error(err))
 		return 0, err
 	}
@@ -41,8 +47,13 @@ func GetNewOrder(ctx context.Context) (int, int, error) {
 	err := DB.QueryRowContext(ctx, "SELECT number,user_id FROM orders WHERE status = $1 OR status =$2",
 		"NEW", "PROCESSING").Scan(&number, &user)
 	if err != nil {
-		log.Logger.Info("Problem with getting order", zap.Error(err))
-		return 0, 0, err
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Logger.Info("No rows", zap.Error(err))
+			return 0, 0, nil
+		} else {
+			log.Logger.Info("Problem with getting order", zap.Error(err))
+			return 0, 0, err
+		}
 	}
 	return number, user, nil
 }

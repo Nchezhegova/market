@@ -29,6 +29,7 @@ func LoadOrders(c *gin.Context) {
 	orderUser, err := orders.CheckOrder(c)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
 	if orderUser != 0 {
 		if orderUser == uid {

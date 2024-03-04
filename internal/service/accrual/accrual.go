@@ -25,7 +25,7 @@ type AccrualModel struct {
 	Accrual decimal.Decimal `json:"accrual"`
 }
 
-var TooManyRequests = errors.New("too many requests for accrual service")
+var ErrTooManyRequests = errors.New("too many requests for accrual service")
 
 func RunAccrual(ctx context.Context, addr string) {
 	OrdersList = make(chan int)
@@ -51,7 +51,7 @@ func Worker(ctx context.Context, addr string) {
 			return
 		}
 		retry, err := GetOrderInformation(ctx, order, addr)
-		if errors.Is(err, TooManyRequests) {
+		if errors.Is(err, ErrTooManyRequests) {
 			time.Sleep(time.Duration(retry) * time.Second)
 		}
 	}
@@ -71,7 +71,7 @@ func GetOrderInformation(ctx context.Context, number int, addr string) (int, err
 			log.Logger.Info("Can't convert Retry-After", zap.Error(err))
 			return 0, err
 		}
-		return retryInt, TooManyRequests
+		return retryInt, ErrTooManyRequests
 	}
 	if resp.StatusCode != http.StatusOK {
 		log.Logger.Info("Response status not OK", zap.Error(err))
@@ -101,8 +101,8 @@ func GetOrderInformation(ctx context.Context, number int, addr string) (int, err
 
 func GenerateOrdersList(ctx context.Context) error {
 	number, user, err := db.GetNewOrder(ctx)
-	if number == 0 {
-		return err
+	if err != nil {
+		return nil
 	}
 	OrdersList <- number
 	if err = db.OrderProcessing(ctx, number, user); err != nil {
